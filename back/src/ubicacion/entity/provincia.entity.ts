@@ -1,0 +1,15 @@
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Ciudad } from './ciudad.entity';
+
+@Entity('provincia')
+export class Provincia {
+  @PrimaryGeneratedColumn({ name: 'id_provincia' })
+  id: number;
+
+  @Column({ type: 'varchar', length: 100 })
+  nombre: string;
+
+  // Relación: Una provincia tiene muchas ciudades
+  @OneToMany(() => Ciudad, (ciudad) => ciudad.provincia)
+  ciudades: Ciudad[];
+}
