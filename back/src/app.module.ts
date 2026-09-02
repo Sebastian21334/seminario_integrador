@@ -1,19 +1,58 @@
 import { Module } from '@nestjs/common';
 import { createObserveModule } from '@nestjs/observe';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
+import { UsuariosModule } from './usuarios/usuarios.module';
+import { AnunciantesModule } from './anunciantes/anunciantes.module';
+import { PropiedadesModule } from './propiedades/propiedades.module';
+import { PublicacionesModule } from './publicaciones/publicaciones.module';
+import { UbicacionModule } from './ubicacion/ubicacion.module';
+import { ImagenesModule } from './imagenes/imagenes.module';
+import { DisponibilidadModule } from './disponibilidad/disponibilidad.module';
+import { ReservasModule } from './reservas/reservas.module';
+import { MensajesModule } from './mensajes/mensajes.module';
+import { CatalogosModule } from './catalogos/catalogos.module';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
 @Module({
-  imports: [
-    // Distributed tracing, auto-correlated logs, request/job metrics, error
-    // telemetry, alarms, and more — out of the box. Sign up at https://observe.nestjs.com
-    ObserveModule.forRoot({
-      appKey: 'YOUR_APP_KEY',
-      appSecret: 'YOUR_APP_SECRET',
-      serviceId: 'sistema-alquileres-back',
+  imports: [    
+    // Configuración global para leer el archivo .env
+    ConfigModule.forRoot({
+      isGlobal: true, 
     }),
+
+    // Configuración de TypeORM usando la DATABASE_URL
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        url: configService.get<string>('DATABASE_URL'), // Lee la URL completa del .env
+        autoLoadEntities: true, // Carga automáticamente las entidades de los módulos
+        synchronize: true, // Sincroniza el DER creando las tablas automáticamente (útil en desarrollo)
+        ssl: {
+          rejectUnauthorized: false, // Requerido por Neon y Azure
+        }
+      }),
+    }),
+
+    // Tus módulos de negocio
+    AuthModule,
+    UsuariosModule,
+    AnunciantesModule,
+    PropiedadesModule,
+    PublicacionesModule,
+    UbicacionModule,
+    ImagenesModule,
+    DisponibilidadModule,
+    ReservasModule,
+    MensajesModule,
+    CatalogosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
