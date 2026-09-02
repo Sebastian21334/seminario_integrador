@@ -1,0 +1,13 @@
+# Backend
+back/node_modules/
+back/dist/
+back/.env
+
+# Frontend
+front/node_modules/
+front/dist/
+front/.angular/
+
+# General
+.DS_Store
+*.log
